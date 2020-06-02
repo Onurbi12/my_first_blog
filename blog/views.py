@@ -13,3 +13,7 @@ def post_list(request):
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=int(pk))
     return render(request, "blog/post_detail.html", {"post": post})
+
+
+def akema_temp(request):
+    return render(request, "blog/test.html")
