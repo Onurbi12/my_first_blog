@@ -3,9 +3,10 @@ from .models import Post
 from django.utils import timezone
 from .forms import PostForm
 from django.shortcuts import redirect
-from bokeh.plotting import figure, output_file, show
-from bokeh.embed import components
-from bokeh.resources import CDN
+
+# from bokeh.plotting import figure, output_file, show
+# from bokeh.embed import components
+# from bokeh.resources import CDN
 
 
 def post_list(request):
@@ -17,28 +18,7 @@ def post_list(request):
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=int(pk))
-    x = [1, 3, 5, 7, 9, 11, 13]
-    y = [1, 2, 3, 4, 5, 6, 7]
-    title = "y = f(x)"
-
-    plot = figure(
-        title=title,
-        x_axis_label="X-Axis",
-        y_axis_label="Y-Axis",
-        plot_width=400,
-        plot_height=400,
-    )
-
-    plot.line(x, y, legend="f(x)", line_width=2)
-    # Store components
-    script, div = components(plot)
-
-    # Feed them to the Django template.
-    return render(
-        request,
-        "blog/post_detail.html",
-        {"post": post, "script": script, "div": div},
-    )
+    return render(request, "blog/post_detail.html", {"post": post},)
 
 
 def akema_temp(request):
@@ -74,24 +54,24 @@ def post_edit(request, pk):
     return render(request, "blog/post_edit.html", {"form": form})
 
 
-def index(request):
-    x = [1, 3, 5, 7, 9, 11, 13]
-    y = [1, 2, 3, 4, 5, 6, 7]
-    title = "y = f(x)"
+# def index(request):
+#     x = [1, 3, 5, 7, 9, 11, 13]
+#     y = [1, 2, 3, 4, 5, 6, 7]
+#     title = "y = f(x)"
 
-    plot = figure(
-        title=title,
-        x_axis_label="X-Axis",
-        y_axis_label="Y-Axis",
-        plot_width=400,
-        plot_height=400,
-    )
+#     plot = figure(
+#         title=title,
+#         x_axis_label="X-Axis",
+#         y_axis_label="Y-Axis",
+#         plot_width=400,
+#         plot_height=400,
+#     )
 
-    plot.line(x, y, legend="f(x)", line_width=2)
-    # Store components
-    script, div = components(plot)
+#     plot.line(x, y, legend="f(x)", line_width=2)
+#     # Store components
+#     script, div = components(plot)
 
-    # Feed them to the Django template.
-    return render_to_response(
-        "blog/bokeh_test.html", {"script": script, "div": div}
-    )
+#     # Feed them to the Django template.
+#     return render_to_response(
+#         "blog/bokeh_test.html", {"script": script, "div": div}
+#    )
