@@ -1,12 +1,10 @@
-from django.shortcuts import render, get_object_or_404, render_to_response
+from django.shortcuts import render, get_object_or_404
 from .models import Post
 from django.utils import timezone
 from .forms import PostForm
 from django.shortcuts import redirect
-
-# from bokeh.plotting import figure, output_file, show
-# from bokeh.embed import components
-# from bokeh.resources import CDN
+import re
+import io
 
 
 def post_list(request):
@@ -22,7 +20,20 @@ def post_detail(request, pk):
 
 
 def akema_temp(request):
-    return render(request, "blog/test.html")
+    with io.open("./blog/templates/blog/test.html", "r") as html_test:
+        html_string = html_test.read()
+
+    new_string = re.sub(
+        r"(<a.*?</a>)",
+        r'<span class="url" style="background-color: red;">\1</span>',
+        html_string,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+
+    with io.open("./blog/templates/blog/test2.html", "w") as html_test:
+        html_test.write(new_string)
+
+    return render(request, "blog/test2.html")
 
 
 def post_new(request):
@@ -52,26 +63,3 @@ def post_edit(request, pk):
     else:
         form = PostForm(instance=post)
     return render(request, "blog/post_edit.html", {"form": form})
-
-
-# def index(request):
-#     x = [1, 3, 5, 7, 9, 11, 13]
-#     y = [1, 2, 3, 4, 5, 6, 7]
-#     title = "y = f(x)"
-
-#     plot = figure(
-#         title=title,
-#         x_axis_label="X-Axis",
-#         y_axis_label="Y-Axis",
-#         plot_width=400,
-#         plot_height=400,
-#     )
-
-#     plot.line(x, y, legend="f(x)", line_width=2)
-#     # Store components
-#     script, div = components(plot)
-
-#     # Feed them to the Django template.
-#     return render_to_response(
-#         "blog/bokeh_test.html", {"script": script, "div": div}
-#    )
