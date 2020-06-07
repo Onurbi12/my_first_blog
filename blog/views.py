@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.core.files import File
 from .models import Post
 from django.utils import timezone
 from .forms import PostForm
@@ -20,7 +21,8 @@ def post_detail(request, pk):
 
 
 def akema_temp(request):
-    with open("./blog/templates/blog/test.html", "r") as html_test:
+    with open("./blog/templates/blog/test.html", "r") as html_t:
+        html_test = File(html_t)
         html_string = html_test.read()
 
     new_string = re.sub(
@@ -30,7 +32,8 @@ def akema_temp(request):
         flags=re.MULTILINE | re.DOTALL,
     )
 
-    with open("./blog/templates/blog/test2.html", "w") as html_test:
+    with open("./blog/templates/blog/test2.html", "w") as html_t:
+        html_test = File(html_t)
         html_test.write(new_string)
 
     return render(request, "blog/test2.html")
