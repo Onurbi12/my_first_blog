@@ -20,7 +20,7 @@ def post_detail(request, pk):
 
 
 def akema_temp(request):
-    with io.open("blog/templates/blog/test.html", "r") as html_test:
+    with open("./blog/templates/blog/test.html", "r") as html_test:
         html_string = html_test.read()
 
     new_string = re.sub(
@@ -30,7 +30,7 @@ def akema_temp(request):
         flags=re.MULTILINE | re.DOTALL,
     )
 
-    with io.open("./blog/templates/blog/test2.html", "w") as html_test:
+    with open("./blog/templates/blog/test2.html", "w") as html_test:
         html_test.write(new_string)
 
     return render(request, "blog/test2.html")
