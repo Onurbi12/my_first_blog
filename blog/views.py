@@ -21,20 +21,20 @@ def post_detail(request, pk):
 
 
 def akema_temp(request):
-    with open("./blog/templates/blog/test.html", "r") as html_t:
-        html_test = File(html_t)
-        html_string = html_test.read()
+    # with open("./blog/templates/blog/test.html", "r") as html_t:
+    #     html_test = File(html_t)
+    #     html_string = html_test.read()
 
-    new_string = re.sub(
-        r"(<a.*?</a>)",
-        r'<span class="url" style="background-color: red;">\1</span>',
-        html_string,
-        flags=re.MULTILINE | re.DOTALL,
-    )
+    # new_string = re.sub(
+    #     r"(<a.*?</a>)",
+    #     r'<span class="url" style="background-color: red;">\1</span>',
+    #     html_string,
+    #     flags=re.MULTILINE | re.DOTALL,
+    # )
 
-    with open("./blog/templates/blog/test2.html", "w") as html_t:
-        html_test = File(html_t)
-        html_test.write(new_string)
+    # with open("./blog/templates/blog/test2.html", "w") as html_t:
+    #     html_test = File(html_t)
+    #     html_test.write(new_string)
 
     return render(request, "blog/test2.html")
 
