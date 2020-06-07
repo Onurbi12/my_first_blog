@@ -21,7 +21,7 @@ def post_detail(request, pk):
 
 
 def akema_temp(request):
-    with open("/blog/templates/blog/test.html", "r") as html_t:
+    with open("blog/test.html", "r") as html_t:
         html_test = File(html_t)
         html_string = html_test.read()
 
