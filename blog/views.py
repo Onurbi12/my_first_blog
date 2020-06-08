@@ -22,11 +22,9 @@ def post_detail(request, pk):
 
 
 def akema_temp(request):
-
-    with open(
-        "/home/Onurbi12/onurbi12.pythonanywhere.com/blog/templates/blog/test.html",
-        "r",
-    ) as html_t:
+    folder_path = os.path.dirname(os.path.abspath(__file__))
+    html_template = os.path.join(folder_path, "templates/blog/test.html")
+    with open(html_template, "r",) as html_t:
         html_test = File(html_t)
         html_string = html_test.read()
 
@@ -37,10 +35,8 @@ def akema_temp(request):
         flags=re.MULTILINE | re.DOTALL,
     )
 
-    with open(
-        "/home/Onurbi12/onurbi12.pythonanywhere.com/blog/templates/blog/test2.html",
-        "w",
-    ) as html_t:
+    new_template = os.path.join(folder_path, "templates/blog/test2.html")
+    with open(new_template, "w",) as html_t:
         html_test = File(html_t)
         html_test.write(new_string)
 
