@@ -1,0 +1,77 @@
+from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.core.files import File
+
+import re
+import io
+import os
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+
+def akema_temp(request):
+#################################################
+#####       mise en forme des données       #####
+#################################################
+    sns.set(style='whitegrid', palette='deep')
+    sns.set_context("paper")
+
+    df = pd.read_csv('blog/data/donnée_tracking.csv')
+
+    df_modif = df.groupby(["lien cliquer"], as_index=False).sum()
+    nbr_click=link["total clique"]
+
+    tot=sum(nbr_click)
+    rayon = (nbr_click *100/tot)/2
+
+    df_modif['rayon']=rayon
+    tableau = df_modif.reset_index()
+    link=tableau["lien cliquer"]
+
+
+    folder_path = os.path.dirname(os.path.abspath(__file__))
+#################################################
+#####             Fichier CSS               #####
+#################################################
+    with io.open("./blog/static/css/akema.css", 'r') as css_test:
+        css_string = css_test.read()
+
+    new_rayon = re.sub(
+        r"(rayon)",
+        r"{}".format(url1),
+        css_string,
+        flags=re.MULTILINE | re.DOTALL,
+        )
+    new_css = os.path.join(folder_path, "static/css/akema_test.css")
+    with io.open(new_css, 'w') as css_test:
+        css_test.write(new_rayon)
+
+#################################################
+#####             Fichier HTML              #####
+#################################################
+    with io.open("./blog/templates/blog/test.html", "r") as html_test:
+        html_string = html_test.read()
+
+    css_line = ('{% load static %}''\n'
+                '<link rel="stylesheet" type="text/css" href="{% static "css/akema_test.css" %}">'
+                )
+
+    new_string = re.sub(
+        r"(<a.*?</a>)",
+        r'<span class="url">\1</span>',
+        html_string,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+
+
+    new_template = os.path.join(folder_path, "templates/blog/testGraph.html")
+    with open(new_template, "w",) as html_t:
+        html_test = File(html_t)
+        html_test.write(new_string)
+        html_test.write(css_line)
+
+    return render(request, "blog/testGraph.html")
+
