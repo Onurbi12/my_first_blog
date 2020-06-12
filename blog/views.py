@@ -1,11 +1,7 @@
-# -*- coding: latin-1 -*-
-from django.shortcuts import render, get_object_or_404
+# -*- coding: utf-8 -*-
+from django.shortcuts import render
 from django.core.files import File
 
-# from .models import Post
-# from django.utils import timezone
-# from .forms import PostForm
-# from django.shortcuts import redirect
 import re
 import os
 import pandas as pd
@@ -13,24 +9,31 @@ from bs4 import BeautifulSoup
 from colour import Color
 
 
-def main_page(request):
+template_name = ""
+csv_filename = "donn\xe9e_tracking.csv"
+
+
+def templates():
+    """Get the existing html templates in donnée_tracking.csv."""
     folder_path = os.path.dirname(os.path.abspath(__file__))
-    csv_data = os.path.join(folder_path, "data/donnee_tracking.csv")
-    df = pd.read_csv(csv_data, delimiter=";")
+    csv_data = os.path.join(folder_path, "data", csv_filename)
+    df = pd.read_csv(csv_data, delimiter=";", encoding="utf-8")
     df = df.drop_duplicates(subset="Nom du template")
     templates = []
+    temp_nb = 0
     for template in df["Nom du template"]:
-        templates.append(template)
-    print(templates)
-    return render(request, "blog/base.html", {"templates": templates})
+        temp_nb += 1
+        templates.append((template, temp_nb))
+    return templates
 
 
 def data_prep():
+    """Get the urls and click percent from one particular template."""
+    global template_name
     folder_path = os.path.dirname(os.path.abspath(__file__))
-    csv_data = os.path.join(folder_path, "data/donnee_tracking.csv")
-    html_name = "différent_lien.html"
+    csv_data = os.path.join(folder_path, "data", csv_filename)
     df = pd.read_csv(csv_data, delimiter=";")
-    df = df[df["Nom du template"] == html_name]
+    df = df[df["Nom du template"] == template_name.encode("utf-8")]
     df = df.drop_duplicates(subset="lien cliquer")
 
     links_clics = df[["lien cliquer", "total clique"]]
@@ -48,29 +51,42 @@ def data_prep():
                 ]
             )
         )
-        max_pct = int(max(percent_list))
+        max_pct = max(percent_list)
     sorted_list = sorted(zip(url_list, percent_list), key=lambda x: x[1])
     return [sorted_list, max_pct]
 
 
-def new_html(request):
-    folder_path = os.path.dirname(os.path.abspath(__file__))
-    html_template = os.path.join(
-        folder_path, "templates/blog/different_lien.html"
-    )
-    with open(html_template, "r",) as html_t:
-        html_test = File(html_t)
-        html_string = html_test.read()
-
-    link_nb = 0
-
+def color_span():
+    """Create hexadecimal color span for data vizualization."""
     red = Color("red")
     colors = list(red.range_to(Color("green"), data_prep()[1]))
     colors_hex = []
     for color in colors:
         colors_hex.append(color.hex_l)
+    return colors_hex
+
+
+def diameter_size(pct):
+    """Limit diameter size between 25 and 100px."""
+    if pct < 25:
+        return 25
+    return pct
+
+
+def new_html():
+    """Modify the html template for data vizualization."""
+    global template_name
+    folder_path = os.path.dirname(os.path.abspath(__file__))
+    html_template = os.path.join(folder_path, "templates/blog", template_name)
+    with open(html_template, "r",) as html_t:
+        html_test = File(html_t)
+        html_string = html_test.read()
+
+    link_nb = 0
+    colors_hex = color_span()
 
     for url, pct in data_prep()[0]:
+        diameter = diameter_size(pct)
         link_nb += 1
         new_string = re.sub(
             r'(<a href="{}".*?>.*?</a>)'.format(url),
@@ -93,10 +109,10 @@ def new_html(request):
             color: {};}}
         """.format(
                 link_nb,
-                pct * 2.5,
-                pct * 2.5,
+                diameter,
+                diameter,
                 colors_hex[pct - 1],
-                pct * 2.5,
+                diameter,
                 colors_hex[pct - 1],
             )
         )
@@ -114,48 +130,32 @@ def new_html(request):
             font-weight: bold;}}
         """.format(
                 link_nb,
-                pct * 2.5,
-                pct * 2.5,
+                diameter,
+                diameter,
                 colors_hex[pct - 1],
-                pct * 2.5,
+                diameter,
                 colors_hex[pct - 1],
             )
         )
-        print(link_nb, pct)
         html_string = str(soup)
+    return html_string
 
-    new_template = os.path.join(folder_path, "templates/blog/test2.html")
+
+def main_page(request):
+    """Render main page."""
+    temp_list = templates()
+    return render(request, "blog/base.html", {"templates": temp_list})
+
+
+def akema_temp(request, temp_nb):
+    """Render modified html template."""
+    global template_name
+    template_name, _ = templates()[int(temp_nb) - 1]
+
+    folder_path = os.path.dirname(os.path.abspath(__file__))
+    new_template = os.path.join(folder_path, "templates/blog/result.html")
     with open(new_template, "w") as html_t:
         html_test = File(html_t)
-        html_test.write(html_string)
+        html_test.write(new_html())
 
-    return render(request, "blog/test2.html")
-
-
-# new_html()
-
-
-def akema_temp(request):
-    folder_path = os.path.dirname(os.path.abspath(__file__))
-    html_template = os.path.join(folder_path, "templates/blog/test.html")
-    with open(html_template, "r",) as html_t:
-        html_test = File(html_t)
-        html_string = html_test.read()
-
-    new_string = re.sub(
-        r"(<a.*?</a>)",
-        r'<span class="url" style="background-color: red;">\1</span>',
-        html_string,
-        flags=re.MULTILINE | re.DOTALL,
-    )
-
-    new_template = os.path.join(folder_path, "templates/blog/test2.html")
-    with open(new_template, "w",) as html_t:
-        html_test = File(html_t)
-        html_test.write(new_string)
-
-    return render(request, "blog/test2.html")
-
-
-def graphic(request):
-    return render(request, "blog/test2.html")
+    return render(request, "blog/result.html")

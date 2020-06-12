@@ -3,8 +3,6 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" type="text/css" />
-    <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-1.4.0.min.js"></script>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
     <link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
@@ -19,8 +17,8 @@
     <div class="content container">
         <div class="row">
             <div class="col-md-8">
-                {% for template in templates %}
-                <p><a href="{% url 'akema_temp' %}" target='_blank'>{{ template }} </a></p>
+                {% for template, temp_nb in templates %}
+                <p><a href="/akema/{{temp_nb}}/" target='_blank'>{{ template }} </a></p>
                 {% endfor %}
             </div>
         </div>
