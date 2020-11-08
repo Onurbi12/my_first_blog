@@ -13,6 +13,13 @@ template_name = ""
 csv_filename = "donn\xe9e_tracking.csv"
 
 
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+
+from weasyprint import HTML, CSS
+
+
 def templates():
     """Get the existing html templates in donnée_tracking.csv."""
     folder_path = os.path.dirname(os.path.abspath(__file__))
@@ -67,10 +74,8 @@ def color_span():
 
 
 def diameter_size(pct):
-    """Limit diameter size between 25 and 100px."""
-    if pct < 25:
-        return 25
-    return pct
+    """Limit diameter size between 25 and 125px."""
+    return pct + 25
 
 
 def new_html():
@@ -159,3 +164,26 @@ def akema_temp(request, temp_nb):
         html_test.write(new_html())
 
     return render(request, "blog/result.html")
+
+
+def html_to_pdf_view(request):
+    html_string = render_to_string("blog/result.html")
+
+    html = HTML(string=html_string)
+    html.write_pdf(
+        target="blog/mypdf.pdf",
+        stylesheets=[
+            CSS(
+                string="""@page {
+    size: A4;
+    margin: 0in 1.44in 0.2in 0.44in;
+}"""
+            )
+        ],
+    )
+
+    fs = FileSystemStorage("blog")
+    with fs.open("mypdf.pdf") as pdf:
+        response = HttpResponse(pdf, content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="mypdf.pdf"'
+        return response
